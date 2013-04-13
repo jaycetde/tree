@@ -2,6 +2,8 @@
 
 var $ = jQuery;
 var EventEmitter = '';
+var _ = 'underscore'; // ( _.each )
+//document
 
 function inherits (child, parent) {
 	for (var key in parent.prototype) {
@@ -34,7 +36,7 @@ Root.prototype.get = function (path, callback) {
 
 		self.emit('loaded', path, data);
 
-
+		callback(data);
 
 	});
 
@@ -61,25 +63,25 @@ var Tree = function (name, root) {
 
 inherits(Tree, EventEmitter);
 
-Tree.prototype.$path = function (path) {
-	return this.$el.find('[data-path=' + path + ']');
+Tree.prototype.$ = function (selector) {
+	return this.$el.find(selector);
 };
 
 Tree.prototype.toggle = function (path) {
 
-	this.$path(path).toggle();
+	this.$('.tree-children [data-path=' + path + ']').toggle();
 
 };
 
 Tree.prototype.show = function (path) {
 
-	this.$path(path).show();
+	this.$('.tree-children [data-path=' + path + ']').show();
 
 };
 
 Tree.prototype.hide = function (path) {
 
-	this.$path(path).hide();
+	this.$('.tree-children [data-path=' + path + ']').hide();
 
 };
 
@@ -89,7 +91,37 @@ Tree.prototype.load = function (path) {
 
 	self.root.get(path, function (data) {
 
-		// add into list
+		var $children = self.$('tree-children [data-path=' + path + ']');
+
+		data.sort(function (a, b) {
+			return a.dir && !b.dir ? -1 : !a.dir && b.dir ? 1 : a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
+		});
+
+		$children.empty();
+
+		_.each(data, function (item) {
+
+			var $item = $(document.createElement('div'));
+
+			$item.html(item.name).addClass('tree-item').attr('data-path', item.path);
+
+			$children.append($item);
+
+			if (item.dir) {
+
+				var $child = $(document.createElement('div'));
+
+				$item.addClass('tree-dir');
+
+				$child.addClass('tree-children').attr('data-path', item.path);
+
+				$children.append($child);
+
+			}
+
+		});
+
+		self.current = path;
 
 	});
 
@@ -105,12 +137,12 @@ Tree.prototype.refresh = function () {
 
 Tree.prototype.loading = function (path) {
 
-	this.$path(path).addClass('tree-loading');
+	this.$('tree-item [data-path=' + path + ']').addClass('tree-loading');
 
 };
 
 Tree.prototype.loaded = function (path) {
 
-	this.$path(path).removeClass('tree-loading');
+	this.$('tree-item [data-path=' + path + ']').removeClass('tree-loading');
 
 };
