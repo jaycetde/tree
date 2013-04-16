@@ -1,9 +1,10 @@
 'use strict';
 
-var $ = jQuery;
-var EventEmitter = '';
-var _ = 'underscore'; // ( _.each )
-//document
+/* Depends on
+ *  jQuery
+ *  EventEmitter
+ *  browser (document)
+ */
 
 function inherits (child, parent) {
 	for (var key in parent.prototype) {
@@ -45,19 +46,19 @@ Root.prototype.get = function (path, callback) {
 var Tree = function (name, root) {
 
 	if (!(this instanceof Tree)) {
-		return new Tree(root);
+		return new Tree(name, root);
 	}
 
 	this.name = name;
-	this.root = new Root(root);
+	this._root = root;
 
 	this.current = null;
 
-	this.root.on('loading', this.loading, this);
-	this.root.on('loaded', this.loaded, this);
+	this.on('loading', this.loading);
+	this.on('loaded', this.loaded);
 
 	// initialize this.$el
-	this.$el = $();
+	this.$el = $(document.createElement('div'));
 
 };
 
@@ -67,21 +68,37 @@ Tree.prototype.$ = function (selector) {
 	return this.$el.find(selector);
 };
 
+Tree.prototype.get = function (path, callback) {
+
+	var self = this;
+
+	self.emit('loading', path);
+
+	$.get(self._root + path, function (data) {
+
+		self.emit('loaded', path, data);
+
+		callback(data);
+
+	});
+
+};
+
 Tree.prototype.toggle = function (path) {
 
-	this.$('.tree-children [data-path=' + path + ']').toggle();
+	this.$('[data-path=' + path + '] > .tree-children').toggle();
 
 };
 
 Tree.prototype.show = function (path) {
 
-	this.$('.tree-children [data-path=' + path + ']').show();
+	this.$('[data-path=' + path + '] > .tree-children').show();
 
 };
 
 Tree.prototype.hide = function (path) {
 
-	this.$('.tree-children [data-path=' + path + ']').hide();
+	this.$('[data-path=' + path + '] > .tree-children').hide();
 
 };
 
@@ -91,7 +108,7 @@ Tree.prototype.load = function (path) {
 
 	self.root.get(path, function (data) {
 
-		var $children = self.$('tree-children [data-path=' + path + ']');
+		var $children = self.$('[data-path=' + path + '] > .tree-children');
 
 		data.sort(function (a, b) {
 			return a.dir && !b.dir ? -1 : !a.dir && b.dir ? 1 : a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
@@ -99,23 +116,30 @@ Tree.prototype.load = function (path) {
 
 		$children.empty();
 
-		_.each(data, function (item) {
+		$.each(data, function (i, item) {
 
 			var $item = $(document.createElement('div'));
 
-			$item.html(item.name).addClass('tree-item').attr('data-path', item.path);
-
-			$children.append($item);
+			$item.html(item.name).addClass('tree-item');
 
 			if (item.dir) {
 
-				var $child = $(document.createElement('div'));
+				var $container = $(document.createElement('div'))
+					, $childContainer = $(document.createElement('div'))
+				;
 
+				$container.attr('data-path', item.path);
+				$childContainer.addClass('tree-children');
 				$item.addClass('tree-dir');
 
-				$child.addClass('tree-children').attr('data-path', item.path);
+				$container.append($item, $childContainer);
 
-				$children.append($child);
+				$children.append($container);
+
+			} else {
+
+				$item.attr('data-path', item.path);
+				$children.append($item);
 
 			}
 
@@ -137,12 +161,12 @@ Tree.prototype.refresh = function () {
 
 Tree.prototype.loading = function (path) {
 
-	this.$('tree-item [data-path=' + path + ']').addClass('tree-loading');
+	this.$('[data-path=' + path + '] > .tree-item').addClass('tree-loading');
 
 };
 
 Tree.prototype.loaded = function (path) {
 
-	this.$('tree-item [data-path=' + path + ']').removeClass('tree-loading');
+	this.$('[data-path=' + path + '] > .tree-item').removeClass('tree-loading');
 
 };
