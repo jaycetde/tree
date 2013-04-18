@@ -33,6 +33,25 @@ testTree.fetch = function (id, callback) {
 	}, 100 * Math.pow(2, inc));
 };
 
+testTree.on('loading', function (id) {
+
+	var loading = document.createElement('span');
+
+	loading.innerHTML = ' loading...';
+	loading.className = 'loading-indicator';
+
+	testTree.title(id).appendChild(loading);
+
+});
+
+testTree.on('loaded', function (id) {
+
+	var title = testTree.title(id);
+
+	title.removeChild(title.querySelector('.loading-indicator'));
+
+});
+
 document.body.appendChild(testTree.el);
 
 </script>
