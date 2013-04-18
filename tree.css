@@ -1,0 +1,11 @@
+.tree-children {
+	padding-left: 10px;
+}
+
+.tree-parent {
+	cursor: pointer;
+}
+
+.tree-hidden {
+	display: none;
+}

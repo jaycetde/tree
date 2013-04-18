@@ -1,0 +1,22 @@
+{
+  "name": "tree",
+  "repo": "jaycetde/tree",
+  "description": "Hierarchy tree list ui element",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "component/query": "*",
+    "component/emitter": "*",
+    "component/classes": "*",
+    "component/each": "*",
+    "component/event": "*"
+  },
+  "development": {},
+  "license": "MIT",
+  "scripts": [
+    "index.js"
+  ],
+  "styles": [
+    "tree.css"
+  ]
+}

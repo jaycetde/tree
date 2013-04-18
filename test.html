@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Tree Demo</title>
+
+<script src="build/build.js"></script>
+
+<link rel="stylesheet" href="build/build.css" type="text/css" />
+
+</head>
+<body>
+
+<p>
+This Tree demo shows using custom html for the list items, custom handlers for fetching data, and the ability to fetch data asyncronously (with the use of setTimeout).
+<script>
+
+var Tree = require('tree')
+	, testTree = new Tree('/', 'Root item')
+	, inc = 0
+;
+
+testTree.fetch = function (id, callback) {
+	setTimeout(function () {
+		callback([
+			{ id: id + 'sub1/', html: 'Sub ' + inc, parent: true },
+			{ id: id + 'item1', html: '<span style="color:red">item ' + (3 * inc) + '</span>' },
+			{ id: id + 'sub2/', html: 'Second-sub ' + inc, parent: true },
+			{ id: id + 'item2', html: '<span style="color:green">item ' + (3 * inc + 1) + '</span>' },
+			{ id: id + 'item3', html: 'item ' + (3 * inc + 2) + '</span>' }
+		]);
+		inc += 1;
+	}, 100 * Math.pow(2, inc));
+};
+
+document.body.appendChild(testTree.el);
+
+</script>
+
+</body>
+</html>
