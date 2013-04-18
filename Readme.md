@@ -1,7 +1,7 @@
 
-# tree
+# Tree
 
-  Hierarchy tree list ui element
+  Hierarchy tree ui component
 
 ## Installation
 
